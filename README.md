@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PetCare — Petshop & Veterinária
 
-## Getting Started
+Landing page institucional para petshop e clínica veterinária. Apresenta os serviços, diferenciais e canais de contato do negócio, com design dark-first e foco em conversão via WhatsApp e agendamento.
 
-First, run the development server:
+## Visão geral
+
+Página única com as seguintes seções:
+
+- **Hero** — headline de impacto com CTAs para agendamento
+- **Serviços** — Banho & Tosa, Consulta Veterinária, Hotel Pet, Loja de Produtos
+- **Diferenciais** — equipe certificada, ambiente seguro, agendamento online
+- **Contato** — CTA com link direto para WhatsApp e e-mail
+
+## Stack
+
+| Camada | Tecnologia | Versão |
+|---|---|---|
+| Framework | Next.js (App Router) | 16.2 |
+| UI | React | 19.2 |
+| Linguagem | TypeScript (strict) | 5 |
+| Estilos | TailwindCSS (CSS-first) | 4 |
+| Componentes | shadcn/ui | — |
+| Formulários | React Hook Form + Zod | — |
+| Fonte | Geist Sans / Geist Mono | — |
+
+## Pré-requisitos
+
+- Node.js 20+
+- npm 10+
+
+## Setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+npm run dev        # http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev          # servidor de desenvolvimento
+npm run build        # build de produção
+npm run start        # servir build de produção
+npm run lint         # eslint (flat config v9)
+npx tsc --noEmit     # verificação de tipos sem emitir arquivos
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Estrutura
 
-## Learn More
+```
+src/
+  app/
+    globals.css     # tokens de design (@theme) + reset Tailwind
+    layout.tsx      # root layout — metadata, fontes, html lang="pt-BR"
+    page.tsx        # home page (Server Component)
+  components/
+    ui/             # primitivos shadcn/ui
+  actions/          # Server Actions (única camada que toca o DB)
+  lib/              # clients externos e utilitários puros
+  types/            # tipos globais e schemas Zod compartilhados
+middleware.ts       # proteção de rotas privadas
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Design
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- **Dark-first** — fundo `zinc-950`, acentos `amber-400`
+- **Tipografia** — Geist Sans com escala editorial; sem tamanhos arbitrários
+- **Tokens** — definidos no bloco `@theme` em `src/app/globals.css`; nenhum valor hardcoded fora do tema
+- **Responsividade** — mobile-first; testado em 375 px e 1440 px
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Arquitetura
 
-## Deploy on Vercel
+**Server Components por padrão.** `'use client'` apenas quando há hooks de estado, event handlers ou browser APIs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+**Acesso a dados** exclusivamente via Server Actions em `src/actions/`. Client Components nunca acessam banco diretamente.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Variáveis de ambiente:** `NEXT_PUBLIC_*` apenas para valores seguros no cliente. Credenciais e chaves de API somente em Server Actions ou Route Handlers.
+
+## Segurança
+
+- Todo input externo validado com Zod antes de qualquer processamento
+- Headers de segurança configurados em `next.config.ts` (CSP, X-Frame-Options, etc.)
+- Row Level Security ativo em todas as tabelas Supabase com dados de usuário
+- Sessão derivada sempre do servidor — nunca do cliente
